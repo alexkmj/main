@@ -7,7 +7,7 @@ import seedu.address.logic.parser.exceptions.ParseException;
  * Basic enum for AddArgument.
  */
 public enum AddArgument {
-    NEW_CODE('m', "code") {
+    CODE('m', "code") {
         /**
          * Parses value into code.
          *
@@ -20,7 +20,7 @@ public enum AddArgument {
             return ParserUtil.parseCode(value);
         }
     },
-    NEW_YEAR('y', "year") {
+    YEAR('y', "year") {
         /**
          * Parses value into year.
          *
@@ -33,7 +33,7 @@ public enum AddArgument {
             return ParserUtil.parseYear(value);
         }
     },
-    NEW_SEMESTER('s', "semester") {
+    SEMESTER('s', "semester") {
         /**
          * Parses value into semester.
          *
@@ -46,7 +46,7 @@ public enum AddArgument {
             return ParserUtil.parseSemester(value);
         }
     },
-    NEW_CREDIT('c', "credit") {
+    CREDIT('c', "credit") {
         /**
          * Parses value into credit.
          *
@@ -59,7 +59,7 @@ public enum AddArgument {
             return ParserUtil.parseCredit(value);
         }
     },
-    NEW_GRADE('g', "grade") {
+    GRADE('g', "grade") {
         /**
          * Parses value into grade.
          *
