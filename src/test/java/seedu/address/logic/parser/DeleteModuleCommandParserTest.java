@@ -207,8 +207,7 @@ public class DeleteModuleCommandParserTest {
      * provided arguments
      */
     private static DeleteModuleCommand getDeleteModuleCommand(Code targetCode,
-            Year targetYear, Semester targetSemester
-    ) {
+            Year targetYear, Semester targetSemester) {
         EnumMap<DeleteArgument, Object> argMap;
         argMap = new EnumMap<>(DeleteArgument.class);
         argMap.put(DeleteArgument.TARGET_CODE, targetCode);
