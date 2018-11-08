@@ -13,34 +13,89 @@ CapTracker is a desktop application. The user interacts with it using a CLI, and
 
 == Summary of contributions
 
-* v1.1
-** Implement CAP calculation logic
-** Handle input/update of CAP Goal
+//* v1.1
+//** Added User Stories to Developer Guide
+//** Created initial Mock up of UI
+//
+//* v1.2
+//
+//** Model
+//*** Calculation of `CAP` based on given set of `Modules`
+//*** Calculation of `Target Grades` based on given set of `Complete/Incomplete modules`
+//*** Implement different `States` of a `Grade`
+//
+//** Logic
+//*** Implement the classes to handle command to set `CAP Goal`
+//** Documentation
+//*** Updated User Guide on `CAP Goal` command
+//
+//* v1.3
+//** Model
+//*** Implement triggers to calculate `Target Grades` and `Current CAP`
+//*** Implement `adjusting` of target grades of incomplete modules
+//
+//** Logic
+//*** Provided interface from Logic to UI for getting
+//    1. Current CAP
+//    2. CAP Goal
+//    3. Completed Modules
+//    4. Incomplete Modules
+//*** Implement the classes to handle `adjust` command
+//
+//** UI
+//*** Provide the two `ModuleListPanel` with the correct ObservableList
+//
+//** Storage
+//*** Update Transcript/Grade/Module's Serialiser and Deserialiser to match the correct fields.
+//
+//** Documentation
+//*** Updated Use Cases to follow Proper format
+//*** Updated User Guide on `CAP Goal` command
+//*** Added Sequence Diagrams for Target Grade and CAP Calculations
+//*** Update Model Component of Developer Guide
 
-* v1.2
-** Implement logic to calculate target grades for _not-yet-graded_ modules
 
-//* *Major enhancement*: TBC.
-//** What it does: TBC.
-//** Justification: TBC.
-//** Highlights: TBC.
-//** Credits: TBC.
-//
-//* *Minor enhancement*: TBC.
-//
-//* *Code contributed*: [https://github.com[Functional code]] [https://github.com[Test code]] _{give links to collated code files}_
-//
-//* *Other contributions*:
-//
-//** Project management:
-//*** Managed releases `v1.3` - `v1.5rc` (3 releases) on GitHub
-//** Enhancements to existing features:
-//** Documentation:
-//** Community:
-//*** PRs reviewed (with non-trivial review comments): TBC.
-//*** Contributed to forum discussions (examples:  TBC.)
-//*** Reported bugs and suggestions for other teams in the class (examples:  TBC.)
-//** Tools:
+* *Major enhancement*: Added the *Target Grade Calculation* feature.
+
+** What it does: Shows user what grades he/she needs to achieve
+for those incomplete modules so as to achieve his/her CAP goal.
+
+** Justification: This is one of the main Use Case of the application,
+to allow users to quickly verify if attaining their CAP goal is still feasible or
+whether withdrawing from NUS would be a wiser choice.
+
+** Highlights:
+*** Correctness/Limitations of the algorithm are carefully thought of.
+It may not provide the optimal solution, but it may very well be sufficient for students
+to have a general sense of the feasibility of attaining their CAP goal.
+*** Calculation of target grades are triggered when changes are made to the list of modules
+in the transcript and updated on the UI.
+*** Users may further adjust the target grade and obtain a updated list of target grades
+
+
+* *Minor enhancement*: Added the *Current CAP Calculation* feature.
+
+* *Code Contributed*: https://nus-cs2103-ay1819s1.github.io/cs2103-dashboard/#=undefined&search=jeremiah_ang
+
+* *Other contributions*:
+
+** Project management:
+*** Maintained issue tracker, milestones and review/merger of pull requests.
+** Enhancements to existing features: TBC
+** Documentation:
+*** Updated existing content of the Model Section of Developer Guide
+*** Updated Use Cases to follow the proper format
+*** Added Sequence Diagrams for Target Grade and CAP Calculations
+*** Updated User Guide for several commands
+** Community:
+*** PRs reviewed (with non-trivial review comments):
+link:https://github.com/CS2103-AY1819S1-T13-4/main/pull/76[#76],
+link:https://github.com/CS2103-AY1819S1-T13-4/main/pull/78[#78],
+link:https://github.com/CS2103-AY1819S1-T13-4/main/pull/102[#102],
+link:https://github.com/CS2103-AY1819S1-T13-4/main/pull/133[#133],
+link:https://github.com/CS2103-AY1819S1-T13-4/main/pull/135[#135],
+link:https://github.com/CS2103-AY1819S1-T13-4/main/pull/190[#190],
+
 
 == Contributions to the User Guide
 
@@ -50,9 +105,8 @@ TBC
 //|_Given below are sections I contributed to the User Guide. They showcase my ability to write documentation targeting end-users._
 //|===
 //
-//include::../UserGuide.adoc[tag=undoredo]
-//
-//include::../UserGuide.adoc[tag=dataencryption]
+//include::../UserGuide.adoc[tag=c_goal]
+
 
 == Contributions to the Developer Guide
 

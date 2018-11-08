@@ -88,29 +88,54 @@ is not allowed.
 
 === Editing a module : `c_edit`
 
-Edits fields of a particular module entry in the CAPTracker. +
-Case 1: Only one module entry have the specified module code. +
-Format: `c_edit MODULE_CODE [-code MODULE_CODE] [-year YEAR] [-semester SEMESTER] [-credit CREDIT] [-grade GRADE]` +
-Case 2: Multiple module entry have the specified module code. (Retook the module) +
-Format: `c_edit MODULE_CODE YEAR SEMESTER [-code MODULE_CODE] [-year YEAR] [-semester SEMESTER] [-credit CREDIT] [-grade GRADE]`
+Edits fields of a `*particular*` module entry in the CAPTracker. +
+*Case 1:* +
+`*Only one*` module entry have the specified target module code. +
+_Pretty Print Format:_ +
+----
+c_edit -t TARGET_CODE
+    [-m NEW_CODE]
+    [-y NEW_YEAR]
+    [-s NEW_SEMESTER]
+    [-c NEW_CREDIT]
+    [-g NEW_GRADE]
+----
+*Case 2:* +
+`*More than one*` module entry in CAPTracker has the specified target module code. (E.g. Retook
+the module) +
+_Pretty Print Format:_ +
+----
+c_edit -t TARGET_CODE -e TARGET_YEAR -z TARGET_SEMESTER
+    [-m NEW_CODE]
+    [-y NEW_YEAR]
+    [-s NEW_SEMESTER]
+    [-c NEW_CREDIT]
+    [-g NEW_GRADE]
+----
 
 ****
-* Targeted module entry have to exist in the CAPTracker before editing it.
-* `Year` and `Semester` of the targeted entry must be specified if there exist multiple entries with
-the same module `Code`.
-* At least one of the module's field has to be edited.
-* The edit cannot lead to two modules sharing the same module `Code`, `Year`, and `Semester`.
+* Arguments must be in name-value pair format (E.g. `-name value`).
+* Illegal name or value is not allowed.
+* `TARGET_CODE` has to be specified.
+* `TARGET_YEAR` can be null if and only if `TARGET_SEMESTER` is null.
+* At least one of `NEW_CODE`, `NEW_YEAR`, `NEW_SEMESTER`, `NEW_CREDIT`, or
+`NEW_GRADE` has to be specified.
+* The targeted module entry should exist in the CAPTracker.
+* `TARGET_YEAR` and `TARGET_SEMESTER` of the targeted entry must be specified
+if there exist multiple entries with the same module `TARGET_CODE`.
+* The edit cannot lead to two module entries sharing the same module `Code`,
+`Year`, and `Semester`.
 ****
 
 Examples:
 
-* `c_edit CS2103 -grade A+` +
+* `c_edit -t CS2103 -g A+` +
 Change grade of CS2103 to A+.
-* `c_edit CS2103 -code CS2103T -credit 2` +
-Change the module code and credit of CS2103 to CS2103T and 2 respecitively.
-* `c_edit CS2103 3 2 -semester 1` +
-Change the semester of CS2103 taken in year 3 semester 2 to 1. In this case, CS2103 was retaken and
-cap tracker has multiple entries of it.
+* `c_edit -t CS2103 -m CS2103T -c 2` +
+Change the module code and credit of CS2103 to CS2103T and 2 respectively.
+* `c_edit -t CS2103 -e 3 -z 2 -s 1` +
+Change the semester of CS2103 taken in year 3 semester 2 to 1. In this specific
+case, CS2103 was retaken and cap tracker has multiple entries of it.
 
 
 === Deleting a module : `c_delete`

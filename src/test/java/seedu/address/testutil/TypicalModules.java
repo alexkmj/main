@@ -35,6 +35,7 @@ public class TypicalModules {
 
     public static final String GRADE_A_PLUS = "A+";
     public static final String GRADE_B_PLUS = "B+";
+    public static final String GRADE_B_MINUS = "B-";
     public static final String GRADE_F = "F";
     public static final String GRADE_CS = "CS";
 

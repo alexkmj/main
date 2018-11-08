@@ -243,6 +243,61 @@ Classes used by multiple components are in the `seedu.addressbook.commons` packa
 
 This section describes some noteworthy details on how certain features are implemented.
 
+=== CAP & Target Grades Calculation
+
+The two calculations are triggered upon an change to the list of modules in `Transcript` _i.e. add/update/delete_.
+
+.Sequence Diagram of updating modules in Transcript
+image::SDTranscriptModulesUpdate.png[width="800"]
+
+==== CAP Calculation
+
+The CAP calculation is handled by `Transcript`.
+
+The pseudo-code for CAP is the following:
+```
+all_points <- sum(credits(m) * points(m) for all completed modules m)
+all_credits <- sum(credits(m) for all completed modules m)
+
+CAP <- all_points/all_credits
+```
+
+.Sequence Diagram of CAP calculation
+image::SDTranscriptCalculateCap.png[width="800"]
+
+CAP Calculation is triggered by:
+
+==== Target Grades Calculation
+
+The target `Grade` calculation is facilitated by `Transcript`.
+The returned list of modules with target `Grade` assures the following properties:
+
+* Reducing the `Grade` of any proposed target will result in the increase of another.
+* If `x` is the minimum `Grade` required when assigned to *all* modules to obtain the desired CAP Goal,
+none of the proposed target `Grade` will be greater than `x`
++
+i.e. if assigning `B+` to *all* module is the minimal requirement to obtain the desired CAP Goal,
+none of the proposed target `Grade` will be `A-` or above.
+
+Below is the pseudo-code for Target Grade Calculation:
+```
+CG <- CAP goal of user.
+TC <- total credit of completed and incomplete modules.
+PO <- total points achieved from completed modules.
+P <- CG * TC - PO // total points needed to achieve from incomplete modules.
+
+mc_remaining <- sum of module credit of all incomplete modules
+accumulated_points <- 0
+for every incomplete Module m:
+    avg_point_per_mc <- (P - accumulated_points) / mc_remaining
+    target(m) <- ceiling(avg_point_per_mc)
+    mc_remaining <- mc_remaining - credits(m)
+    accumulated_points <- accumulated_points + (credits(m) * target(m))
+
+```
+.Sequence Diagram of Target Grade calculation
+image::SDTranscriptTargetCalculation.png[width="800"]
+
 // tag::undoredo[]
 === Undo/Redo feature
 ==== Current Implementation
