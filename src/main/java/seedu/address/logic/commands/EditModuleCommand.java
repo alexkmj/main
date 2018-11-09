@@ -3,8 +3,7 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 
 import java.util.EnumMap;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import seedu.address.logic.CommandHistory;
 import seedu.address.logic.commands.exceptions.CommandException;
@@ -51,10 +50,6 @@ public class EditModuleCommand extends Command {
             + " of incomplete modules.";
     public static final String MESSAGE_MODULE_ALREADY_EXIST = "Edited module"
             + "already exist.";
-    public static final String MESSAGE_MULTIPLE_MODULE_ENTRIES = "Multiple"
-            + " module entries with the same module code exist but year or"
-            + " semester is not specified.";
-    public static final String MESSAGE_NO_SUCH_MODULE = "No such module.";
 
     // Target fields.
     private final Code targetCode;
@@ -67,20 +62,6 @@ public class EditModuleCommand extends Command {
     private final Semester newSemester;
     private final Credit newCredit;
     private final Grade newGrade;
-
-    /**
-     * Prevents instantiation of empty constructor.
-     */
-    private EditModuleCommand() {
-        this.targetCode = null;
-        this.targetYear = null;
-        this.targetSemester = null;
-        this.newCode = null;
-        this.newYear = null;
-        this.newSemester = null;
-        this.newCredit = null;
-        this.newGrade = null;
-    }
 
     /**
      * Constructor that instantiates {@code EditModuleCommand}.
@@ -104,24 +85,25 @@ public class EditModuleCommand extends Command {
      * @param argMap Contains the name-value pair mapping of the arguments
      */
     public EditModuleCommand(EnumMap<EditArgument, Object> argMap) {
+        requireNonNull(argMap);
+
         // Instantiate target fields.
-        this.targetCode = (Code) argMap.get(EditArgument.TARGET_CODE);
-        this.targetYear = (Year) argMap.get(EditArgument.TARGET_YEAR);
-        this.targetSemester = (Semester) argMap
-                .get(EditArgument.TARGET_SEMESTER);
+        targetCode = (Code) argMap.get(EditArgument.TARGET_CODE);
+        targetYear = (Year) argMap.get(EditArgument.TARGET_YEAR);
+        targetSemester = (Semester) argMap.get(EditArgument.TARGET_SEMESTER);
 
         // Instantiate new fields.
-        this.newCode = (Code) argMap.get(EditArgument.NEW_CODE);
-        this.newYear = (Year) argMap.get(EditArgument.NEW_YEAR);
-        this.newSemester = (Semester) argMap.get(EditArgument.NEW_SEMESTER);
-        this.newCredit = (Credit) argMap.get(EditArgument.NEW_CREDIT);
-        this.newGrade = (Grade) argMap.get(EditArgument.NEW_GRADE);
+        newCode = (Code) argMap.get(EditArgument.NEW_CODE);
+        newYear = (Year) argMap.get(EditArgument.NEW_YEAR);
+        newSemester = (Semester) argMap.get(EditArgument.NEW_SEMESTER);
+        newCredit = (Credit) argMap.get(EditArgument.NEW_CREDIT);
+        newGrade = (Grade) argMap.get(EditArgument.NEW_GRADE);
 
         // Already handled by EditModuleCommandParser:
         // 1) Target code cannot be null.
         // 2) Target year is null if and only if target semester is null.
         // 3) One of new field is not null.
-        assert targetCode != null;
+        requireNonNull(targetCode);
         assert !(targetYear == null ^ targetSemester == null);
         assert newCode != null
                 || newYear != null
@@ -141,9 +123,6 @@ public class EditModuleCommand extends Command {
      *         Another module in transcript already have the same module code,
      *         year, and semester of the edited module.
      *     </li>
-     *     <li>
-     *         Another module in transcript alread
-     *     </li>
      * </ul>
      *
      * @param model {@code Model} that the command operates on.
@@ -160,7 +139,10 @@ public class EditModuleCommand extends Command {
         // Get target module.
         // Throws CommandException if module does not exists.
         // Throws CommandException if module is incomplete and grade changed.
-        Module target = getTargetModule(model);
+        Module target = CommandUtil.getUniqueTargetModule(model,
+                targetCode,
+                targetYear,
+                targetSemester);
         moduleCompletedIfGradeChange(target);
 
         // Get edited module.
@@ -178,57 +160,6 @@ public class EditModuleCommand extends Command {
 
         String successMsg = String.format(MESSAGE_EDIT_SUCCESS, editedModule);
         return new CommandResult(successMsg);
-    }
-
-    /**
-     * Returns the targeted module.
-     * <p>
-     * Checks if module specified by {@code targetCode} exist. If multiple
-     * module entries matches {@code targetCode}, check if {@code targetYear}
-     * and {@code targetSemester} has been specified. If all check passes, the
-     * targeted module is returned.
-     *
-     * @param model model containing the transcript
-     * @return targeted module
-     * @throws CommandException thrown when specified module does not exist or
-     * there are multiple module entries matching the {@code targetCode} but
-     * {@code targetYear} or {@code targetSemester} was not specified
-     */
-    private Module getTargetModule(Model model) throws CommandException {
-        // Returns the number of modules with target code, year, and semester.
-        List<Module> filteredModule = model.getFilteredModuleList()
-                .stream()
-                .filter(this::isTargetModule)
-                .collect(Collectors.toList());
-
-        // Throws exception when targeted module does not exist.
-        if (filteredModule.size() == 0) {
-            throw new CommandException(MESSAGE_NO_SUCH_MODULE);
-        }
-
-        // Throws exception when more than one module matches target.
-        if (filteredModule.size() > 1) {
-            throw new CommandException(MESSAGE_MULTIPLE_MODULE_ENTRIES);
-        }
-
-        // Returns the targeted module.
-        return filteredModule.get(0);
-    }
-
-    /**
-     * Returns true if module matches all non-null target fields.
-     *
-     * @param module module {@code Module} checked
-     * @return true if module matches all non-null target fields
-     */
-    private boolean isTargetModule(Module module) {
-        if (targetYear == null && targetSemester == null) {
-            return module.getCode().equals(targetCode);
-        }
-
-        return module.getCode().equals(targetCode)
-                && module.getYear().equals(targetYear)
-                && module.getSemester().equals(targetSemester);
     }
 
     /**
@@ -312,8 +243,6 @@ public class EditModuleCommand extends Command {
 
     /**
      * Returns true if all field matches.
-     * <p>
-     * Field matches when they are both null or equal to one another.
      *
      * @param other the other object compared against
      * @return true if all field matches
@@ -332,36 +261,12 @@ public class EditModuleCommand extends Command {
 
         // state check
         EditModuleCommand e = (EditModuleCommand) other;
-
-        boolean targetYearSame = (targetYear == null && e.targetYear == null)
-                || targetYear.equals(e.targetYear);
-
-        boolean targetSemesterSame = (
-                targetSemester == null && e.targetSemester == null)
-                || targetSemester.equals(e.targetSemester);
-
-        boolean newCodeSame = (newCode == null && e.newCode == null)
-                || newCode.equals(e.newCode);
-
-        boolean newYearSame = (newYear == null && e.newYear == null)
-                || newYear.equals(e.newYear);
-
-        boolean newSemesterSame = (newSemester == null && e.newSemester == null)
-                || newSemester.equals(e.newSemester);
-
-        boolean newCreditSame = (newCredit == null && e.newCredit == null)
-                || newCredit.equals(e.newCredit);
-
-        boolean newGradeSame = (newGrade == null && e.newGrade == null)
-                || newGrade.equals(e.newGrade);
-
         return targetCode.equals(e.targetCode)
-                && targetYearSame
-                && targetSemesterSame
-                && newCodeSame
-                && newYearSame
-                && newSemesterSame
-                && newCreditSame
-                && newGradeSame;
+                && Objects.equals(targetYear, e.targetYear)
+                && Objects.equals(targetSemester, e.targetSemester)
+                && Objects.equals(newYear, e.newYear)
+                && Objects.equals(newSemester, e.newSemester)
+                && Objects.equals(newCredit, e.newCredit)
+                && Objects.equals(newGrade, e.newGrade);
     }
 }

@@ -2,17 +2,17 @@ package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.function.Predicate;
+import java.util.EnumMap;
+import java.util.Objects;
 
-import seedu.address.commons.core.Messages;
 import seedu.address.logic.CommandHistory;
 import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.logic.parser.arguments.DeleteArgument;
 import seedu.address.model.Model;
 import seedu.address.model.module.Code;
 import seedu.address.model.module.Module;
 import seedu.address.model.module.Semester;
 import seedu.address.model.module.Year;
-import seedu.address.model.module.exceptions.ModuleNotFoundException;
 
 //@@author alexkmj
 /**
@@ -23,9 +23,10 @@ public class DeleteModuleCommand extends Command {
     public static final String COMMAND_WORD = "delete";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Deletes the module identified by the module code.\n"
-            + "Parameters: MODULE_CODE [YEAR SEMESTER]\n"
-            + "Example: " + COMMAND_WORD + " CS2103";
+            + ": Deletes the module identified by the module code, year, and"
+            + " semester.\n"
+            + "Parameters: -t MODULE_CODE [-e YEAR -z SEMESTER]\n"
+            + "Example: " + COMMAND_WORD + " -t CS2103 -e 4 -z 2";
 
     public static final String MESSAGE_DELETE_MODULE_SUCCESS = "Deleted Module";
 
@@ -34,74 +35,94 @@ public class DeleteModuleCommand extends Command {
     private final Semester targetSemester;
 
     /**
-     * Prevents instantiation of empty constructor.
-     */
-    private DeleteModuleCommand() {
-        targetCode = null;
-        targetYear = null;
-        targetSemester = null;
-    }
-
-    /**
-     * Sets the targeted code set to {@code targetCode} in the argument.
-     * @param targetCode the code used to identify the module to be deleted
-     */
-    public DeleteModuleCommand(Code targetCode) {
-        this(targetCode, null, null);
-    }
-
-    /**
-     * Sets the targeted code, targeted year, and targeted semester to {@code targetCode},
-     * {@code targetYear}, {@code targetSemester} in the argument.
-     * @param targetCode the code used to identify the module to be deleted
-     * @param targetYear the year used to identify the module to be deleted
-     * @param targetSemester the semester used to identify the module to be deleted
-     */
-    public DeleteModuleCommand(Code targetCode, Year targetYear, Semester targetSemester) {
-        this.targetCode = targetCode;
-        this.targetYear = targetYear;
-        this.targetSemester = targetSemester;
-    }
-
-    /**
-     * Attempts to delete a module entry from the transcript. Throws {@code CommandException} if
-     * year and semester wasn't provided and multiple entries of module with the same module code
-     * exist or when no entry of such module exist.
+     * Constructor that instantiates {@code DeleteModuleCommand}.
+     * <p>
+     * Sets target field used to find and delete the module.
+     * <p>
+     * Assumes that:
+     * <ul>
+     *     <li>{@code targetCode} is not null.</li>
+     *     <li>
+     *         {@code targetYear} is null if and only if {@code targetSemester}
+     *         is null
+     *     </li>
+     * </ul>
      *
-     * @param model {@code Model} which the command should operate on.
-     * @param history {@code CommandHistory} which the command should operate on.
-     * @return Message which says that the execution was successful
-     * @throws CommandException exception thrown when command cannot be executed properly
+     * @param argMap Contains the name-value pair mapping of the arguments
+     */
+    public DeleteModuleCommand(EnumMap<DeleteArgument, Object> argMap) {
+        requireNonNull(argMap);
+
+        // Instantiate target fields.
+        targetCode = (Code) argMap.get(DeleteArgument.TARGET_CODE);
+        targetYear = (Year) argMap.get(DeleteArgument.TARGET_YEAR);
+        targetSemester = (Semester) argMap.get(DeleteArgument.TARGET_SEMESTER);
+
+        // Already handled by DeleteModuleCommandParser:
+        // 1) Target code cannot be null.
+        // 2) Target year is null if and only if target semester is null.
+        requireNonNull(targetCode);
+        assert !(targetYear == null ^ targetSemester == null);
+    }
+
+    /**
+     * Deletes the targeted module in the module list of transcript.
+     * <p>
+     * Throws {@code CommandException} when:
+     * <ul>
+     *     <li>There is no module that matches the target code.</li>
+     *     <li>There exists more than one matching module.</li>
+     * </ul>
+     *
+     * @param model {@code Model} that the command operates on.
+     * @param history {@code CommandHistory} that the command operates on.
+     * @return result of the command
+     * @throws CommandException thrown when command cannot be executed
+     * successfully
      */
     @Override
-    public CommandResult execute(Model model, CommandHistory history) throws CommandException {
+    public CommandResult execute(Model model, CommandHistory history)
+            throws CommandException {
+        // Model cannot be null.
         requireNonNull(model);
 
-        if (model.hasMultipleInstances(targetCode)
-                && (targetYear == null || targetSemester == null)) {
-            throw new CommandException(Messages.MESSAGE_MULTIPLE_INSTANCES_FOUND);
-        }
+        // Get target module.
+        // Throws CommandException if module does not exists.
+        // Throws CommandException if there is more than one matching module.
+        Module target = CommandUtil.getUniqueTargetModule(model, targetCode,
+                targetYear, targetSemester);
 
-        Predicate<Module> predicate = target -> {
-            return target.getCode().equals(targetCode)
-                    && (targetYear == null || target.getYear().equals(targetYear))
-                    && (targetSemester == null || target.getSemester().equals(targetSemester));
-        };
-
-        try {
-            model.deleteModule(predicate);
-        } catch (ModuleNotFoundException e) {
-            throw new CommandException(Messages.MESSAGE_INVALID_MODULE);
-        }
-
+        // Delete module and commit.
+        model.deleteModule(target);
         model.commitAddressBook();
-        return new CommandResult(String.format(MESSAGE_DELETE_MODULE_SUCCESS));
+
+        // Return success message.
+        String successMsg = String.format(MESSAGE_DELETE_MODULE_SUCCESS);
+        return new CommandResult(successMsg);
     }
 
+    /**
+     * Returns true if all field matches.
+     *
+     * @param other the other object compared against
+     * @return true if all field matches
+     */
     @Override
     public boolean equals(Object other) {
-        return other == this // short circuit if same object
-                || (other instanceof DeleteModuleCommand // instanceof handles nulls
-                && targetCode.equals(((DeleteModuleCommand) other).targetCode)); // state check
+        // Short circuit if same object.
+        if (other == this) {
+            return true;
+        }
+
+        // instanceof handles nulls.
+        if (!(other instanceof DeleteModuleCommand)) {
+            return false;
+        }
+
+        // State check.
+        DeleteModuleCommand e = (DeleteModuleCommand) other;
+        return Objects.equals(targetCode, e.targetCode)
+                && Objects.equals(targetYear, e.targetYear)
+                && Objects.equals(targetSemester, e.targetSemester);
     }
 }

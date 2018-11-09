@@ -13,6 +13,7 @@ import org.junit.Test;
 import seedu.address.logic.commands.AddModuleCommand;
 import seedu.address.logic.commands.DeleteModuleCommand;
 import seedu.address.logic.commands.EditModuleCommand;
+import seedu.address.logic.parser.arguments.DeleteArgument;
 import seedu.address.logic.parser.arguments.EditArgument;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.testutil.Assert;
@@ -77,10 +78,18 @@ public class TranscriptParserTest {
      */
     @Test
     public void parseCommandDeleteModuleSuccess() throws ParseException {
+        EnumMap<DeleteArgument, Object> argMap;
+        argMap = new EnumMap<>(DeleteArgument.class);
+        argMap.put(DeleteArgument.TARGET_CODE, DATA_STRUCTURES.getCode());
+        argMap.put(DeleteArgument.TARGET_YEAR, DATA_STRUCTURES.getYear());
+        argMap.put(
+                DeleteArgument.TARGET_SEMESTER,
+                DATA_STRUCTURES.getSemester());
+
         DeleteModuleCommand deleteModuleCommand =
-                new DeleteModuleCommand(DISCRETE_MATH.getCode());
+                new DeleteModuleCommand(argMap);
         String deleteModuleString = ModuleUtil
-                .getDeleteModuleCommand(DISCRETE_MATH);
+                .getDeleteModuleCommand(DATA_STRUCTURES);
         DeleteModuleCommand command = (DeleteModuleCommand) parser
                 .parseCommand(deleteModuleString);
         assertEquals(deleteModuleCommand, command);

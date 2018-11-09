@@ -2,56 +2,68 @@ package seedu.address.logic.commands;
 
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
+import static seedu.address.testutil.TypicalModules.ASKING_QUESTIONS;
 import static seedu.address.testutil.TypicalModules.DISCRETE_MATH;
 import static seedu.address.testutil.TypicalModules.getTypicalTranscript;
 
+import java.util.EnumMap;
+
 import org.junit.Test;
 
-import seedu.address.commons.core.Messages;
 import seedu.address.logic.CommandHistory;
+import seedu.address.logic.parser.arguments.DeleteArgument;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
-import seedu.address.model.module.Code;
-import seedu.address.model.util.ModuleBuilder;
-import seedu.address.testutil.TypicalModules;
 
 /**
- * Contains integration tests (interaction with the Model, UndoCommand and RedoCommand) and unit
- * tests for {@code DeleteCommand}.
+ * Contains integration tests (interaction with the {@code Model},
+ * {@code UndoCommand} and {@code RedoCommand}) and unit tests for
+ * {@code DeleteModuleCommandTest}.
  */
 public class DeleteModuleCommandTest {
 
-    private Model model = new ModelManager(getTypicalTranscript(), new UserPrefs());
+    private Model model = new ModelManager(getTypicalTranscript(),
+            new UserPrefs());
     private CommandHistory commandHistory = new CommandHistory();
 
+    /**
+     * Target should be in the transcript.
+     */
     @Test
-    public void executeValidCodeUnfilteredListSuccess() {
-        DeleteModuleCommand deleteModuleCommand = new DeleteModuleCommand(DISCRETE_MATH.getCode());
+    public void executeTargetNotInTranscriptFail() {
+        EnumMap<DeleteArgument, Object> argMap;
+        argMap = new EnumMap<>(DeleteArgument.class);
+        argMap.put(DeleteArgument.TARGET_CODE, ASKING_QUESTIONS.getCode());
+        argMap.put(DeleteArgument.TARGET_YEAR, null);
+        argMap.put(DeleteArgument.TARGET_SEMESTER, null);
 
-        String expectedMessage = String.format(DeleteModuleCommand.MESSAGE_DELETE_MODULE_SUCCESS,
-                deleteModuleCommand);
+        DeleteModuleCommand command = new DeleteModuleCommand(argMap);
 
-        ModelManager expectedModel = new ModelManager(model.getTranscript(), new UserPrefs());
-        expectedModel.deleteModule(target -> target.getCode().equals(DISCRETE_MATH.getCode()));
-        expectedModel.commitTranscript();
-
-        assertCommandSuccess(deleteModuleCommand, model, commandHistory, expectedMessage,
-                expectedModel);
+        assertCommandFailure(command, model, commandHistory,
+                CommandUtil.MESSAGE_NO_SUCH_MODULE);
     }
 
+    /**
+     * Command should execute successfully.
+     */
     @Test
-    public void executeInvalidCodeUnfilteredListThrowsCommandException() {
-        Code invalidCode = new Code(TypicalModules.CODE_SOFTWARE_ENGINEERING);
-        DeleteModuleCommand deleteModuleCommand = new DeleteModuleCommand(invalidCode);
+    public void executeEditCommandSuccess() {
+        EnumMap<DeleteArgument, Object> argMap;
+        argMap = new EnumMap<>(DeleteArgument.class);
+        argMap.put(DeleteArgument.TARGET_CODE, DISCRETE_MATH.getCode());
+        argMap.put(DeleteArgument.TARGET_YEAR, null);
+        argMap.put(DeleteArgument.TARGET_SEMESTER, null);
 
-        assertCommandFailure(deleteModuleCommand, model, commandHistory,
-                Messages.MESSAGE_INVALID_MODULE);
+        DeleteModuleCommand command = new DeleteModuleCommand(argMap);
 
-        model.addModule(new ModuleBuilder(DISCRETE_MATH).withYear(TypicalModules.YEAR_TWO).build());
-        deleteModuleCommand = new DeleteModuleCommand(DISCRETE_MATH.getCode());
+        ModelManager expectedModel = new ModelManager(model.getTranscript(),
+                new UserPrefs());
+        expectedModel.deleteModule(DISCRETE_MATH);
+        expectedModel.commitTranscript();
 
-        assertCommandFailure(deleteModuleCommand, model, commandHistory,
-                Messages.MESSAGE_MULTIPLE_INSTANCES_FOUND);
+        assertCommandSuccess(command, model, commandHistory,
+                DeleteModuleCommand.MESSAGE_DELETE_MODULE_SUCCESS,
+                expectedModel);
     }
 }
