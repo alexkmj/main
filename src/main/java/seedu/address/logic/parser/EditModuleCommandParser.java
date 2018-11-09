@@ -1,19 +1,18 @@
 package seedu.address.logic.parser;
 
-import static seedu.address.logic.parser.ParserUtil.argsAreNameValuePair;
-import static seedu.address.logic.parser.ParserUtil.argsWithBounds;
 import static seedu.address.logic.parser.ParserUtil.parseException;
-import static seedu.address.logic.parser.ParserUtil.targetCodeNotNull;
-import static seedu.address.logic.parser.ParserUtil.targetYearNullIffTargetSemesterNull;
-import static seedu.address.logic.parser.ParserUtil.tokenize;
-import static seedu.address.logic.parser.ParserUtil.validateName;
 
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import seedu.address.logic.commands.EditModuleCommand;
 import seedu.address.logic.parser.arguments.EditArgument;
@@ -24,53 +23,20 @@ import seedu.address.logic.parser.exceptions.ParseException;
  * {@code EditModuleCommand}.
  */
 public class EditModuleCommandParser implements Parser<EditModuleCommand> {
-    /**
-     * Message that informs that the command is in a wrong format and
-     * prints the usage for edit command.
-     */
-    public static final String MESSAGE_INVALID_FORMAT =
-            ParserUtil.MESSAGE_INVALID_FORMAT
-                    + "\n"
-                    + EditModuleCommand.MESSAGE_USAGE;
-
-    /**
-     * Message that informs that the command does not lead to any changes.
-     */
-    public static final String MESSAGE_NO_NEW_VALUE = "No new value provided.\n"
+    // Constants for ParseException.
+    public static final String MESSAGE_TARGET_CODE_REQUIRED = "Target code"
+            + " required.\n" + EditModuleCommand.MESSAGE_USAGE;
+    public static final String MESSAGE_YEAR_AND_SEMESTER_XOR_NULL = "Year and"
+            + " semester should be concurrently specified or not specified.\n"
+            + EditModuleCommand.MESSAGE_USAGE;;
+    public static final String MESSAGE_NO_CHANGES = "Command does not cause"
+            + " any changes. Not enough parameters specified.\n"
+            + EditModuleCommand.MESSAGE_USAGE;
+    public static final String MESSAGE_INVALID_FORMAT = "Invalid format\n"
             + EditModuleCommand.MESSAGE_USAGE;
 
-    /**
-     * Message that informs that the target code is required and prints the
-     * usage for edit command.
-     */
-    public static final String MESSAGE_TARGET_CODE_REQUIRED =
-            ParserUtil.MESSAGE_TARGET_CODE_REQUIRED
-                    + "\n"
-                    + EditModuleCommand.MESSAGE_USAGE;
-
-    /**
-     * Message that informs that target year has to be specified if and only if
-     * semester is specified, and prints the usage for edit command.
-     */
-    public static final String MESSAGE_YEAR_AND_SEMESTER_XOR_NULL =
-            ParserUtil.MESSAGE_YEAR_AND_SEMESTER_XOR_NULL
-                    + "\n"
-                    + EditModuleCommand.MESSAGE_USAGE;
-
-    /**
-     * Immutable map that maps string argument to edit argument enum.
-     */
+    // Immutable map that maps string argument to edit argument enum.
     private static final Map<String, EditArgument> NAME_TO_ARGUMENT_MAP;
-
-    /**
-     * Map the object of the parsed value to {@code EditArgument} instance.
-     */
-    private EnumMap<EditArgument, Object> argMap;
-
-    /**
-     * Populate {@code NAME_TO_ARGUMENT_MAP} with short name and long name as
-     * key and the respective {@code EditArgument} instance as value.
-     */
     static {
         Map<String, EditArgument> map = new HashMap<>();
         for (EditArgument instance : EditArgument.values()) {
@@ -80,9 +46,12 @@ public class EditModuleCommandParser implements Parser<EditModuleCommand> {
         NAME_TO_ARGUMENT_MAP = Collections.unmodifiableMap(map);
     }
 
+    // Map object to argument.
+    private EnumMap<EditArgument, Object> argMap;
+
     /**
-     * Parses {@code argsInString} in the context of {@code EditModuleCommand}
-     * and returns {@code EditModuleCommand} for execution.
+     * Parses {@code args} in the context of {@code EditModuleCommand} and
+     * returns {@code EditModuleCommand} for execution.
      * <p>
      * Throws {@code ParseException} when:
      * <ul>
@@ -116,30 +85,17 @@ public class EditModuleCommandParser implements Parser<EditModuleCommand> {
         argMap.put(EditArgument.NEW_GRADE, null);
 
         // Converts argument string to tokenize argument array.
-        String[] args = tokenize(argsInString);
+        String[] args = ParserUtil.tokenize(argsInString);
 
-        // Size of argument should be between 4 to 16.
-        // Size of argument should be even.
-        // Arguments should be in name-value pair.
-        // Name should be legal.
-        // No duplicate name.
-        argsWithBounds(args, 4, 16);
-        argsAreNameValuePair(args, MESSAGE_INVALID_FORMAT);
-        validateName(args, NAME_TO_ARGUMENT_MAP, MESSAGE_INVALID_FORMAT);
+        ParserUtil.argsWithBounds(args, 4, 16);
+        ParserUtil.argsAreNameValuePair(args, MESSAGE_INVALID_FORMAT);
+        validateName(args);
 
         // Parse values.
         parseValues(args);
 
-        // Target code should not be null.
-        // Target year is null if and only if target semester is null.
-        // At least one new value should be specified.
-        targetCodeNotNull(
-                argMap.get(EditArgument.TARGET_CODE),
-                MESSAGE_TARGET_CODE_REQUIRED);
-        targetYearNullIffTargetSemesterNull(
-                argMap.get(EditArgument.TARGET_YEAR),
-                argMap.get(EditArgument.TARGET_SEMESTER),
-                MESSAGE_YEAR_AND_SEMESTER_XOR_NULL);
+        targetCodeNotNull();
+        targetYearNullIffTargetSemesterNull();
         atLeastOneNewValueSpecified();
 
         // Return edit module command for execution.
@@ -225,14 +181,15 @@ public class EditModuleCommandParser implements Parser<EditModuleCommand> {
      * grade are all null
      */
     private void atLeastOneNewValueSpecified() throws ParseException {
-        boolean allNewValueIsNull = argMap.entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().name().startsWith("NEW"))
-                .map(entry -> entry.getValue())
-                .allMatch(Objects::isNull);
+        Object code = argMap.get(EditArgument.NEW_CODE);
+        Object year = argMap.get(EditArgument.NEW_YEAR);
+        Object semester = argMap.get(EditArgument.NEW_SEMESTER);
+        Object credit = argMap.get(EditArgument.NEW_CREDIT);
+        Object grade = argMap.get(EditArgument.NEW_GRADE);
 
-        if (allNewValueIsNull) {
-            throw parseException(MESSAGE_NO_NEW_VALUE);
+        if (code == null && year == null && semester == null && credit == null
+                && grade == null) {
+            throw parseException(MESSAGE_NO_CHANGES);
         }
     }
 }

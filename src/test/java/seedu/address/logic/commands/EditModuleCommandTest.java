@@ -51,7 +51,7 @@ public class EditModuleCommandTest {
 
         assertCommandFailure(editModuleCommand,
                 model, commandHistory,
-                CommandUtil.MESSAGE_NO_SUCH_MODULE);
+                EditModuleCommand.MESSAGE_NO_SUCH_MODULE);
     }
 
     /**
@@ -122,9 +122,6 @@ public class EditModuleCommandTest {
         model.commitTranscript();
     }
 
-    /**
-     * Command should execute successfully.
-     */
     @Test
     public void executeEditCommandSuccess() {
         EnumMap<EditArgument, Object> argMap;

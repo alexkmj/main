@@ -141,7 +141,7 @@ public class EditModuleCommandParserTest {
     public void parseNoNewValueFails() {
         assertParseFailure(parser,
                 "-t CS1231 -e 1 -z 1",
-                EditModuleCommandParser.MESSAGE_NO_NEW_VALUE);
+                EditModuleCommandParser.MESSAGE_NO_CHANGES);
     }
 
     /**

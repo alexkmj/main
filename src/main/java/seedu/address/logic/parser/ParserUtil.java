@@ -4,8 +4,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,37 +29,11 @@ import seedu.address.model.tag.Tag;
  * Parser classes.
  */
 public class ParserUtil {
-    /**
-     * Message that informs that the command is in a wrong format.
-     */
-    public static final String MESSAGE_INVALID_FORMAT = "Invalid format";
 
-    /**
-     * TODO: Remove legacy code.
-     */
-    public static final String MESSAGE_INVALID_INDEX = "Invalid index";
+    public static final String MESSAGE_INVALID_INDEX = "Index is not a"
+        + " non-zero unsigned integer.";
 
-    /**
-     * Message that informs that the target code is required.
-     */
-    public static final String MESSAGE_TARGET_CODE_REQUIRED = "Target code"
-            + " required.";
-
-    /**
-     * Message that informs that target year has to be specified if and only if
-     * semester is specified.
-     */
-    public static final String MESSAGE_YEAR_AND_SEMESTER_XOR_NULL = "Year can"
-            + " only be specified if and only if semester is also specifed.";
-
-    /**
-     * Prefix used for short name.
-     */
     public static final String NAME_PREFIX_SHORT = "-";
-
-    /**
-     * Prefix used for long name.
-     */
     public static final String NAME_PREFIX_LONG = "--";
 
     /**
@@ -77,7 +49,8 @@ public class ParserUtil {
     }
 
     /**
-     * Size of {@code args} equals to the size of {@code size}.
+     * Validates that the size of {@code args} equals to the size of
+     * {@code size}.
      * <p>
      * Throws {@code ParseException} when size of {@code args} is not equal to
      * {@code size}.
@@ -94,7 +67,8 @@ public class ParserUtil {
     }
 
     /**
-     * Size of {@code args} is between {@code min} and {@code max}.
+     * Validates that the size of {@code args} is between {@code min} and
+     * {@code max}.
      * <p>
      * Throws {@code ParseException} when size of {@code args} is not between
      * {@code min} and {@code max}.
@@ -119,7 +93,7 @@ public class ParserUtil {
     }
 
     /**
-     * Size of {@code args} is in {@code allowedSize}.
+     * Validates that the size of {@code args} is in {@code allowedSize}.
      * <p>
      * Throws {@code ParseException} when size of {@code args} is not in
      * {@code allowedSize}.
@@ -146,7 +120,7 @@ public class ParserUtil {
     }
 
     /**
-     * All arguments in {@code args} conforms to the name-value pair format.
+     * Validates that {@code args} contains name-value pair.
      * <p>
      * For all of the arguments in the argument array, odd arguments must be a
      * name and even arguments must be a value. Throws {@code ParseException}
@@ -160,8 +134,8 @@ public class ParserUtil {
      *
      * @param args argument array that contains the name-value pair
      * @param errorMsg error message shown when ParseException is thrown
-     * @throws ParseException thrown when argument array does not conform to
-     * name-value pair format
+     * @throws ParseException thrown wh argument array to validateen argument is
+     * not in name value pairparseValues
      */
     public static void argsAreNameValuePair(String[] args, String errorMsg)
             throws ParseException {
@@ -184,77 +158,13 @@ public class ParserUtil {
     }
 
     /**
-     * Returns true if argument is a name.
-     * <p>
-     * {@code argument} is a name if it starts with {@code NAME_PREFIX_SHORT}
-     * or {@code NAME_PREFIX_LONG}.
      *
-     * @param argument argument to be checked
-     * @return true if argument is a name.
+     * @param argument
+     * @return
      */
-    private static boolean isName(String argument) {
+    public static boolean isName(String argument) {
         return argument.startsWith(NAME_PREFIX_SHORT)
                 || argument.startsWith(NAME_PREFIX_LONG);
-    }
-
-    /**
-     * Argument array does not contain the same name twice and all names are
-     * legal.
-     *
-     * @param args array of name-value pair arguments
-     * @param nameToArgMap map that maps {@code T} to string which is the name
-     * @param errorMsg message shown when {@code ParseException} is
-     * thrown
-     * @param <T> the argument enum
-     * @throws ParseException thrown when there are duplicate or illegal name.
-     */
-    public static <T> void validateName(String[] args,
-            Map<String, T> nameToArgMap, String errorMsg)
-            throws ParseException {
-        List<T> nameArray = IntStream.range(0, args.length)
-                .filter(index -> index % 2 == 0)
-                .mapToObj(index -> nameToArgMap.get(args[index]))
-                .collect(Collectors.toList());
-
-        boolean illegalNameExist = nameArray.stream()
-                .anyMatch(Objects::isNull);
-
-        if (illegalNameExist) {
-            throw parseException(errorMsg);
-        }
-
-        Set<T> nameSet = new HashSet<>(nameArray);
-
-        if (nameArray.size() != nameSet.size()) {
-            throw parseException(errorMsg);
-        }
-    }
-
-    /**
-     * Target code is not null.
-     *
-     * @param targetCode {@code Code} that identifies the target {@code Module}
-     * @param errorMsg message shown when {@code ParseException} is thrown
-     * @throws ParseException thrown when target code is null
-     */
-    public static void targetCodeNotNull(Object targetCode, String errorMsg)
-            throws ParseException {
-        if (targetCode == null) {
-            throw parseException(errorMsg);
-        }
-    }
-
-    /**
-     * Target year and target semester cannot be exclusively null.
-     *
-     * @throws ParseException thrown when target year and target semester is
-     * exclusively null
-     */
-    public static void targetYearNullIffTargetSemesterNull(Object targetYear,
-            Object targetSemester, String errorMsg) throws ParseException {
-        if (targetYear == null ^ targetSemester == null) {
-            throw parseException(errorMsg);
-        }
     }
 
     /**
@@ -272,7 +182,7 @@ public class ParserUtil {
      * Parses a {@code String code} into a {@code Code}. Leading and trailing
      * whitespaces will be trimmed.
      *
-     * @throws ParseException thrown when the given {@code code} is invalid.
+     * @throws ParseException if the given {@code code} is invalid.
      */
     public static Code parseCode(String args) throws ParseException {
         requireNonNull(args);
@@ -289,7 +199,7 @@ public class ParserUtil {
      * Parses a {@code String year} into a {@code Year}. Leading and trailing
      * whitespaces will be trimmed.
      *
-     * @throws ParseException thrown when the given {@code year} is invalid.
+     * @throws ParseException if the given {@code year} is invalid.
      */
     public static Year parseYear(String args) throws ParseException {
         requireNonNull(args);
@@ -304,7 +214,7 @@ public class ParserUtil {
      * Parses a {@code String semester} into a {@code Semester}. Leading and
      * trailing whitespaces will be trimmed.
      *
-     * @throws ParseException thrown when the given {@code semester} is invalid.
+     * @throws ParseException if the given {@code semester} is invalid.
      */
     public static Semester parseSemester(String args) throws ParseException {
         requireNonNull(args);
@@ -319,7 +229,7 @@ public class ParserUtil {
      * Parses a {@code String credit} into a {@code Credit}. Leading and
      * trailing whitespaces will be trimmed.
      *
-     * @throws ParseException thrown when the given {@code credit} is invalid.
+     * @throws ParseException if the given {@code credit} is invalid.
      */
     public static Credit parseCredit(String args) throws ParseException {
         requireNonNull(args);
@@ -335,7 +245,7 @@ public class ParserUtil {
      * Parses a {@code String grade} into a {@code Grade}. Leading and trailing
      * whitespaces will be trimmed.
      *
-     * @throws ParseException thrown when the given {@code grade} is invalid.
+     * @throws ParseException if the given {@code grade} is invalid.
      */
     public static Grade parseGrade(String args) throws ParseException {
         requireNonNull(args);
@@ -347,12 +257,11 @@ public class ParserUtil {
     }
 
     /**
-     * TODO: Remove legacy code.
      * Parses {@code oneBasedIndex} into an {@code Index} and returns it.
      * Leading and trailing whitespaces will be trimmed.
      *
-     * @throws ParseException thrown when the specified index is invalid
-     * (not non-zero unsigned integer).
+     * @throws ParseException if the specified index is invalid (not non-zero
+     * unsigned integer).
      */
     public static Index parseIndex(String oneBasedIndex) throws ParseException {
         String trimmedIndex = oneBasedIndex.trim();
@@ -363,7 +272,6 @@ public class ParserUtil {
     }
 
     /**
-     * TODO: Remove legacy code.
      * Parses a {@code String name} into a {@code Name}. Leading and trailing
      * whitespaces will be trimmed.
      *
@@ -379,7 +287,6 @@ public class ParserUtil {
     }
 
     /**
-     * TODO: Remove legacy code.
      * Parses a {@code String phone} into a {@code Phone}. Leading and trailing
      * whitespaces will be trimmed.
      *
@@ -395,7 +302,6 @@ public class ParserUtil {
     }
 
     /**
-     * TODO: Remove legacy code.
      * Parses a {@code String address} into an {@code Address}. Leading and
      * trailing whitespaces will be trimmed.
      *
@@ -411,7 +317,6 @@ public class ParserUtil {
     }
 
     /**
-     * TODO: Remove legacy code.
      * Parses a {@code String email} into an {@code Email}. Leading and trailing
      * whitespaces will be trimmed.
      *
@@ -427,7 +332,10 @@ public class ParserUtil {
     }
 
     /**
-     * TODO: Remove legacy code.
+     * Parses a {@code String tag} into a {@code Tag}. Leading and trailing
+     * whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code tag} is invalid.
      */
     public static Tag parseTag(String tag) throws ParseException {
         requireNonNull(tag);
@@ -439,7 +347,6 @@ public class ParserUtil {
     }
 
     /**
-     * TODO: Remove legacy code.
      * Parses {@code Collection<String> tags} into a {@code Set<Tag>}.
      */
     public static Set<Tag> parseTags(Collection<String> tags)
