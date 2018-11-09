@@ -8,6 +8,7 @@ import java.util.List;
 
 import java.util.function.Predicate;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import seedu.address.model.capgoal.CapGoal;
@@ -15,7 +16,6 @@ import seedu.address.model.module.Code;
 import seedu.address.model.module.Grade;
 import seedu.address.model.module.Module;
 import seedu.address.model.module.UniqueModuleList;
-import seedu.address.model.module.exceptions.ModuleCompletedException;
 
 //@@author alexkmj
 /**
@@ -246,7 +246,7 @@ public class Transcript implements ReadOnlyTranscript {
             return;
         }
         ObservableList<Module> targetableModules = getTargetableModulesList();
-        List<Module> newTargetModules = getNewTargetModuleGrade(targetableModules);
+        ObservableList<Module> newTargetModules = calculateNewTargetModuleGrade(targetableModules);
         if (newTargetModules == null) {
             makeCapGoalImpossible();
             return;
@@ -274,9 +274,10 @@ public class Transcript implements ReadOnlyTranscript {
      * Calculates target module grade in order to achieve target goal
      * @return a list of modules with target grade if possible. null otherwise
      */
-    private List<Module> getNewTargetModuleGrade(ObservableList<Module> targetableModules) {
+    private ObservableList<Module> calculateNewTargetModuleGrade(ObservableList<Module> targetableModules) {
+        List<Module> targetModules = new ArrayList<>();
         ObservableList<Module> gradedModules = getGradedModulesList();
-        ObservableList<Module> adjustedModules = getGradedAdjustedModulesList();
+        ObservableList<Module> adjustedModules = getAdjustedModulesList();
         ObservableList<Module> sortedTargetableModules = targetableModules.sorted(
                 Comparator.comparingInt(Module::getCreditsValue));
 
@@ -286,64 +287,16 @@ public class Transcript implements ReadOnlyTranscript {
         double currentTotalPoint = calculateTotalModulePoint(gradedModules)
                 + calculateTotalModulePoint(adjustedModules);
 
-        if (totalUngradedModuleCredit == 0) {
-            if (totalMc == 0) {
-                return null;
-            }
-            double adjustedCap = currentTotalPoint / totalMc;
-            if (capGoal.getValue() > adjustedCap) {
-                return null;
-            }
-            return new ArrayList<>();
-        }
-
-        return createNewTargetModuleGrade(
-                sortedTargetableModules,
-                totalUngradedModuleCredit, totalMc, currentTotalPoint);
-    }
-
-    /**
-     * Creates the new list of modules with target grade
-     * @param sortedTargetableModules
-     * @param totalUngradedModuleCredit
-     * @param totalMc
-     * @param currentTotalPoint
-     * @return the new list of modules with target grade
-     * @throws IllegalArgumentException  if totalUngradedModuleCredit is zero or negative
-     */
-    private List<Module> createNewTargetModuleGrade(
-            ObservableList<Module> sortedTargetableModules,
-            double totalUngradedModuleCredit, double totalMc, double currentTotalPoint) {
-        if (totalUngradedModuleCredit <= 0) {
-            throw new IllegalArgumentException("totalUngradedModuleCredit cannot be zero or negative");
-        }
         double totalScoreToAchieve = capGoal.getValue() * totalMc - currentTotalPoint;
-        return calculateAndCreateNewTargetModuleGrade(
-                sortedTargetableModules,
-                totalUngradedModuleCredit, totalScoreToAchieve);
-    }
-
-    /**
-     * Calculates and creates the new list of modules with target grade
-     * @param sortedTargetableModules
-     * @param givenTotalUngradedModuleCredit
-     * @param givenTotalScoreToAchieve
-     * @return the new list of modules with target grade
-     * @throws IllegalArgumentException  if totalUngradedModuleCredit is zero or negative
-     */
-    private List<Module> calculateAndCreateNewTargetModuleGrade(
-            ObservableList<Module> sortedTargetableModules,
-            double givenTotalUngradedModuleCredit, double givenTotalScoreToAchieve) {
-        double totalUngradedModuleCredit = givenTotalUngradedModuleCredit;
-        double totalScoreToAchieve = givenTotalScoreToAchieve;
         double unitScoreToAchieve = Math.ceil(totalScoreToAchieve / totalUngradedModuleCredit * 2) / 2.0;
-        if (totalUngradedModuleCredit <= 0) {
-            throw new IllegalArgumentException("totalUngradedModuleCredit cannot be zero or negative");
-        }
+
         if (unitScoreToAchieve > 5) {
             return null;
         }
-        List<Module> targetModules = new ArrayList<>();
+        if (targetableModules.isEmpty()) {
+            return FXCollections.observableArrayList(targetModules);
+        }
+
         Module newTargetModule;
         for (Module targetedModule : sortedTargetableModules) {
             if (unitScoreToAchieve <= 0.5) {
@@ -356,11 +309,11 @@ public class Transcript implements ReadOnlyTranscript {
             unitScoreToAchieve = Math.ceil(totalScoreToAchieve / totalUngradedModuleCredit * 2) / 2.0;
         }
 
-        return targetModules;
+        return FXCollections.observableArrayList(targetModules);
     }
 
-    private ObservableList<Module> getGradedAdjustedModulesList() {
-        return modules.getFilteredModules(module -> module.isAdjusted() && module.isAffectCap());
+    private ObservableList<Module> getAdjustedModulesList() {
+        return modules.getFilteredModules(Module::isAdjusted);
     }
 
     @Override
@@ -427,9 +380,6 @@ public class Transcript implements ReadOnlyTranscript {
     public Module adjustModule(Module targetModule, Grade adjustGrade) {
         requireNonNull(targetModule);
         requireNonNull(adjustGrade);
-        if (targetModule.hasCompleted()) {
-            throw new ModuleCompletedException();
-        }
 
         Module adjustedModule = targetModule.adjustGrade(adjustGrade);
         //TODO: Use updateModule when fixed
