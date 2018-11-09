@@ -12,6 +12,7 @@ import seedu.address.model.module.Module;
 import seedu.address.model.module.Semester;
 import seedu.address.model.module.Year;
 
+//@@author alexkmj
 /**
  * Contains utility methods used for executing commands in the various
  * Command classes.
@@ -30,7 +31,7 @@ public class CommandUtil {
      * and {@code targetSemester} has been specified. If all check passes, the
      * targeted module is returned.
      *
-     * @param model model containing the transcript
+     * @param model {@code model} containing the transcript
      * @return targeted module
      * @throws CommandException thrown when specified module does not exist or
      * there are multiple module entries matching the {@code targetCode} but

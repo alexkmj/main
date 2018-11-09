@@ -126,6 +126,7 @@ public class Transcript implements ReadOnlyTranscript {
      */
     public void removeModule(Predicate<Module> predicate) {
         modules.remove(predicate);
+        modulesUpdated();
     }
 
     //@@author jeremiah-ang

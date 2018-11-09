@@ -52,8 +52,7 @@ public class DeleteModuleCommandParserTest {
     @Test
     public void parseInvalidNumOfArgumentFails() {
         String exceptionMsg = "Invalid number of arguments! Number of arguments"
-                + " should be more than or equal to 2 and less than or equal to"
-                + " 6";
+                + " should be 2, 4, 6";
 
         assertParseFailure(parser, "", exceptionMsg);
         assertParseFailure(parser,
@@ -76,12 +75,8 @@ public class DeleteModuleCommandParserTest {
     public void parseNotNameValuePairFails() {
         assertParseFailure(parser,
                 getCommandString(DISCRETE_MATH.getCode(), null, null)
-                        + DeleteArgument.TARGET_YEAR.getShortName(),
-                DeleteModuleCommandParser.MESSAGE_INVALID_FORMAT);
-
-        assertParseFailure(parser,
-                getCommandString(DISCRETE_MATH.getCode(), null, null)
-                        + DeleteArgument.TARGET_SEMESTER.getShortName(),
+                        + " " + DISCRETE_MATH.getYear()
+                        + " " + DeleteArgument.TARGET_SEMESTER.getShortName(),
                 DeleteModuleCommandParser.MESSAGE_INVALID_FORMAT);
     }
 
@@ -145,7 +140,8 @@ public class DeleteModuleCommandParserTest {
      */
     @Test
     public void parseSuccess() {
-        String actualCommand = getCommandString(DISCRETE_MATH.getCode(),
+        String actualCommand = getCommandString(
+                DISCRETE_MATH.getCode(),
                 DISCRETE_MATH.getYear(),
                 DISCRETE_MATH.getSemester());
 
@@ -177,7 +173,7 @@ public class DeleteModuleCommandParserTest {
      */
     private static String getCommandString(Code targetCode, Year targetYear,
             Semester targetSemester) {
-        String command = "";
+        String command = " ";
 
         if (targetCode != null) {
             command += DeleteArgument.TARGET_CODE.getShortName()
@@ -191,7 +187,7 @@ public class DeleteModuleCommandParserTest {
 
         if (targetSemester != null) {
             command += DeleteArgument.TARGET_SEMESTER.getShortName()
-                    + " " + targetSemester.value;
+                    + " " + targetSemester.value + " ";
         }
 
         return command;

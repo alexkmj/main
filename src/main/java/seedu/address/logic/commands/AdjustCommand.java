@@ -32,6 +32,7 @@ public class AdjustCommand extends Command {
             + MESSAGE_COMMAND_CODE_YEAR_SEM;
     public static final String MESSAGE_SUCCESS = "Module Adjusted: %1$s";
     public static final String MESSAGE_MODULE_NOT_FOUND = "Module not found";
+    public static final String MESSAGE_MODULE_COMPLETED = "Module already Completed!\n" + MESSAGE_USAGE;
 
     private final Code code;
     private final Year year;
@@ -70,6 +71,9 @@ public class AdjustCommand extends Command {
             } catch (ModuleNotFoundException mnfe) {
                 throw new CommandException(MESSAGE_MODULE_NOT_FOUND);
             }
+        }
+        if (targetModule.hasCompleted()) {
+            throw new CommandException(MESSAGE_MODULE_COMPLETED);
         }
         Module adjustedModule = model.adjustModule(targetModule, grade);
         return new CommandResult(String.format(MESSAGE_SUCCESS, adjustedModule));

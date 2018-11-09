@@ -165,11 +165,6 @@ public class ParserUtil {
      */
     public static void argsAreNameValuePair(String[] args, String errorMsg)
             throws ParseException {
-        // Short circuit if number of argument is not even.
-        if (args.length % 2 != 0) {
-            throw parseException(errorMsg);
-        }
-
         boolean invalidFormat = IntStream.range(0, args.length)
                 .mapToObj(index -> {
                     boolean isEven = index % 2 == 0;

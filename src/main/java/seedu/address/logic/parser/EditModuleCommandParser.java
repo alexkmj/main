@@ -1,5 +1,7 @@
 package seedu.address.logic.parser;
 
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toSet;
 import static seedu.address.logic.parser.ParserUtil.argsAreNameValuePair;
 import static seedu.address.logic.parser.ParserUtil.argsWithBounds;
 import static seedu.address.logic.parser.ParserUtil.parseException;
@@ -12,8 +14,11 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
-
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.IntStream;
+
+import com.google.common.collect.ImmutableSet;
 
 import seedu.address.logic.commands.EditModuleCommand;
 import seedu.address.logic.parser.arguments.EditArgument;
@@ -63,9 +68,9 @@ public class EditModuleCommandParser implements Parser<EditModuleCommand> {
     private static final Map<String, EditArgument> NAME_TO_ARGUMENT_MAP;
 
     /**
-     * Map the object of the parsed value to {@code EditArgument} instance.
+     * Immutable set containing the allowable size of arguments.
      */
-    private EnumMap<EditArgument, Object> argMap;
+    private static final Set<Integer> ALLOWED_ARG_SIZE;
 
     /**
      * Populate {@code NAME_TO_ARGUMENT_MAP} with short name and long name as
@@ -78,6 +83,17 @@ public class EditModuleCommandParser implements Parser<EditModuleCommand> {
             map.put(instance.getLongName(), instance);
         }
         NAME_TO_ARGUMENT_MAP = Collections.unmodifiableMap(map);
+    }
+
+    /**
+     * Populate {@code ALLOWED_ARG_SIZE} with a set of numbers representing the
+     * allowed argument sizes.
+     */
+    static {
+        ALLOWED_ARG_SIZE = IntStream.range(4, 17)
+                .filter(index -> index % 2 == 0)
+                .boxed()
+                .collect(collectingAndThen(toSet(), ImmutableSet::copyOf));
     }
 
     /**
@@ -104,17 +120,6 @@ public class EditModuleCommandParser implements Parser<EditModuleCommand> {
      * expected format
      */
     public EditModuleCommand parse(String argsInString) throws ParseException {
-        // Setup argument map.
-        argMap = new EnumMap<>(EditArgument.class);
-        argMap.put(EditArgument.TARGET_CODE, null);
-        argMap.put(EditArgument.TARGET_YEAR, null);
-        argMap.put(EditArgument.TARGET_SEMESTER, null);
-        argMap.put(EditArgument.NEW_CODE, null);
-        argMap.put(EditArgument.NEW_YEAR, null);
-        argMap.put(EditArgument.NEW_SEMESTER, null);
-        argMap.put(EditArgument.NEW_CREDIT, null);
-        argMap.put(EditArgument.NEW_GRADE, null);
-
         // Converts argument string to tokenize argument array.
         String[] args = tokenize(argsInString);
 
@@ -123,16 +128,18 @@ public class EditModuleCommandParser implements Parser<EditModuleCommand> {
         // Arguments should be in name-value pair.
         // Name should be legal.
         // No duplicate name.
-        argsWithBounds(args, 4, 16);
+        argsWithBounds(args, ALLOWED_ARG_SIZE);
         argsAreNameValuePair(args, MESSAGE_INVALID_FORMAT);
         validateName(args, NAME_TO_ARGUMENT_MAP, MESSAGE_INVALID_FORMAT);
 
         // Parse values.
         parseValues(args);
 
+        // Map the object of the parsed value to {@code EditArgument} instance.
         // Target code should not be null.
         // Target year is null if and only if target semester is null.
         // At least one new value should be specified.
+        EnumMap<EditArgument, Object> argMap = parseValues(args);
         targetCodeNotNull(
                 argMap.get(EditArgument.TARGET_CODE),
                 MESSAGE_TARGET_CODE_REQUIRED);
@@ -140,33 +147,42 @@ public class EditModuleCommandParser implements Parser<EditModuleCommand> {
                 argMap.get(EditArgument.TARGET_YEAR),
                 argMap.get(EditArgument.TARGET_SEMESTER),
                 MESSAGE_YEAR_AND_SEMESTER_XOR_NULL);
-        atLeastOneNewValueSpecified();
+        atLeastOneNewValueSpecified(argMap);
 
         // Return edit module command for execution.
         return new EditModuleCommand(argMap);
     }
 
     /**
-     * Parse the value into its relevant object.
+     * Parses the value into its relevant object.
      *
      * @param args array of name-value pair arguments
      * @throws ParseException thrown when the value cannot be parsed
      */
-    private void parseValues(String[] args) throws ParseException {
+    private EnumMap<EditArgument, Object> parseValues(String[] args)
+            throws ParseException {
+        // Initialise argument map
+        EnumMap<EditArgument, Object> argMap =
+                new EnumMap<>(EditArgument.class);
+
         for (int index = 0; index < args.length; index = index + 2) {
             EditArgument name = NAME_TO_ARGUMENT_MAP.get(args[index]);
             Object value = name.getValue(args[index + 1]);
             argMap.put(name, value);
         }
+
+        return argMap;
     }
 
     /**
-     * One of code, year, semester, credit, or grade should have a new value.
+     * Checks that one of code, year, semester, credit, or grade should have a
+     * new value.
      *
      * @throws ParseException Thrown when code, year, semester, credit, and
      * grade are all null
      */
-    private void atLeastOneNewValueSpecified() throws ParseException {
+    private void atLeastOneNewValueSpecified(EnumMap<EditArgument,
+            Object> argMap) throws ParseException {
         boolean allNewValueIsNull = argMap.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().name().startsWith("NEW"))

@@ -57,10 +57,6 @@ public class DeleteModuleCommandTest {
 
         DeleteModuleCommand command = new DeleteModuleCommand(argMap);
 
-        String expectedMessage = String.format(
-                DeleteModuleCommand.MESSAGE_DELETE_MODULE_SUCCESS,
-                DISCRETE_MATH);
-
         ModelManager expectedModel = new ModelManager(model.getTranscript(),
                 new UserPrefs());
         expectedModel.deleteModule(DISCRETE_MATH);

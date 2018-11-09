@@ -50,9 +50,8 @@ public class EditModuleCommandParserTest {
      */
     @Test
     public void parseInvalidNumOfArgumentFails() {
-        String exceptionMsg = "Invalid number of arguments! Number of arguments"
-                + " should be more than or equal to 4 and less than or equal to"
-                + " 16";
+        String exceptionMsg = "Invalid number of arguments!"
+                + " Number of arguments should be 16, 4, 6, 8, 10, 12, 14";
 
         assertParseFailure(parser, "", exceptionMsg);
         assertParseFailure(parser, "-t CS1231", exceptionMsg);
@@ -70,19 +69,7 @@ public class EditModuleCommandParserTest {
     @Test
     public void parseNotNameValuePairFails() {
         assertParseFailure(parser,
-                "-t CS1231 -g A+ -g",
-                EditModuleCommandParser.MESSAGE_INVALID_FORMAT);
-
-        assertParseFailure(parser,
-                "-t CS1231 -g A+ 1",
-                EditModuleCommandParser.MESSAGE_INVALID_FORMAT);
-
-        assertParseFailure(parser,
-                "-t CS1231 -g A+ -y 1 1",
-                EditModuleCommandParser.MESSAGE_INVALID_FORMAT);
-
-        assertParseFailure(parser,
-                "-t CS1231 -g A+ -y 1 -s",
+                "-t CS1231 A+ -g",
                 EditModuleCommandParser.MESSAGE_INVALID_FORMAT);
     }
 
@@ -92,7 +79,7 @@ public class EditModuleCommandParserTest {
     @Test
     public void parseIllegalNameFails() {
         assertParseFailure(parser,
-                "-t CS1231 -g A+ -random",
+                "-t CS1231 -g A+ -random random",
                 EditModuleCommandParser.MESSAGE_INVALID_FORMAT);
     }
 
@@ -151,17 +138,9 @@ public class EditModuleCommandParserTest {
     public void parseSuccess() {
         EnumMap<EditArgument, Object> argMap;
         argMap = new EnumMap<>(EditArgument.class);
-        argMap.put(EditArgument.TARGET_CODE, null);
-        argMap.put(EditArgument.TARGET_YEAR, null);
-        argMap.put(EditArgument.TARGET_SEMESTER, null);
-        argMap.put(EditArgument.NEW_CODE, null);
-        argMap.put(EditArgument.NEW_YEAR, null);
-        argMap.put(EditArgument.NEW_SEMESTER, null);
-        argMap.put(EditArgument.NEW_CREDIT, null);
-        argMap.put(EditArgument.NEW_GRADE, null);
-
         argMap.put(EditArgument.TARGET_CODE, DATA_STRUCTURES.getCode());
         argMap.put(EditArgument.NEW_CODE, DISCRETE_MATH.getCode());
+
         assertParseSuccess(parser,
                 "-t CS2040 -m CS1231",
                 new EditModuleCommand(argMap));

@@ -24,11 +24,12 @@ public class AdjustCommandTest {
 
     private CommandHistory commandHistory = new CommandHistory();
 
-    private Module moduleA = TypicalModules.DATA_STRUCTURES;
+    private Module moduleA = TypicalModules.duplicateWithGradesTarget(TypicalModules.DATA_STRUCTURES);
     private Module moduleADiffYear = TypicalModules.duplicateWithDifferentYear(moduleA);
-    private Module moduleB = TypicalModules.DISCRETE_MATH;
+    private Module moduleB = TypicalModules.duplicateWithGradesTarget(TypicalModules.DISCRETE_MATH);
     private Module moduleAAdjusted = TypicalModules.duplicateWithGradesAdjusted(moduleA);
     private Module moduleNotInTranscript = TypicalModules.DATABASE_SYSTEMS;
+    private Module moduleCompleted = TypicalModules.SOFTWARE_ENGINEERING;
 
     @Test
     public void constructorNullModuleThrowsNullPointerException() {
@@ -56,6 +57,8 @@ public class AdjustCommandTest {
         Transcript expectedTranscript = new Transcript();
         expectedTranscript.addModule(moduleAbcDuplicate);
         expectedTranscript.addModule(moduleDef);
+        expectedTranscript.addModule(moduleCompleted);
+
         expectedTranscript.addModule(expectedModuleAbc);
         Model expectedModel = new ModelManager(expectedTranscript, new UserPrefs());
         AdjustCommand adjustCommand = new AdjustCommand(
@@ -92,6 +95,16 @@ public class AdjustCommandTest {
         model.addModule(moduleA);
         model.addModule(moduleADiffYear);
         model.addModule(moduleB);
+        model.addModule(moduleCompleted);
         return model;
+    }
+
+    @Test
+    public void assertAdjustCompletedModuleFailure() {
+        Model model = getSampleModel();
+        AdjustCommand adjustCommand = new AdjustCommand(
+                moduleCompleted.getCode(), null, null, moduleAAdjusted.getGrade());
+        String expectedMessage = AdjustCommand.MESSAGE_MODULE_COMPLETED;
+        assertCommandFailure(adjustCommand, model, commandHistory, expectedMessage);
     }
 }

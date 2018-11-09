@@ -169,20 +169,20 @@ Format: `c_redo`
 Exits the program. +
 Format: `exit`
 
-=== Adjusting target goals: `adjust`
+=== Adjusting target goals: `c_adjust`
 
-Adjust a generated target grade of a module +
+Adjust the grade of an incomplete module +
 Format:
 
-* Module code is unique: `adjust MODULE_CODE GRADE`
-* Otherwise: `adjust MODULE_CODE YEAR SEM GRADE`
+* Module code is unique: `c_adjust MODULE_CODE GRADE`
+* Otherwise: `c_adjust MODULE_CODE YEAR SEM GRADE`
 
 Examples:
 
-* `adjust CS2103 A` +
+* `c_adjust CS2103 A` +
 Adjusts the grade with module code CS2103 to have grade A
 
-* `adjust CS2103 1 1 A` +
+* `c_adjust CS2103 1 1 A` +
 Adjusts the grade with module code CS2103 taken in year 1 sem 1 to have grade A
 
 
@@ -217,7 +217,11 @@ or +
 e.g. `c_delete CS2103 1 2` +
 * *Goal* : `c_goal CAP_GOAL` +
 e.g. `c_goal 4.5`
-* *Cap* : `c_cap`
+* *Adjust* : `c_adjust MODULE_CODE GRADE` +
+e.g. `c_adjust CS2103 A` +
+or +
+`c_adjust MODULE_CODE YEAR SEM GRADE` +
+e.g. `c_adjust CS2103 1 1 A`
 * *Undo* : `c_undo`
 * *Redo* : `c_redo`
 * *Help* : `help`

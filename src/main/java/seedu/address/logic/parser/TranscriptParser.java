@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 
 import seedu.address.logic.commands.AddModuleCommand;
 import seedu.address.logic.commands.AdjustCommand;
-import seedu.address.logic.commands.CapCommand;
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.DeleteModuleCommand;
 import seedu.address.logic.commands.EditModuleCommand;
@@ -52,8 +51,6 @@ public class TranscriptParser {
             return new AddModuleCommandParser().parse(arguments);
         case AdjustCommand.COMMAND_WORD:
             return new AdjustCommandParser().parse(arguments);
-        case CapCommand.COMMAND_WORD:
-            return new CapCommand();
         case DeleteModuleCommand.COMMAND_WORD:
             return new DeleteModuleCommandParser().parse(arguments);
         case EditModuleCommand.COMMAND_WORD:

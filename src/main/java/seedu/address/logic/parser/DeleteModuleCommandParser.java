@@ -1,5 +1,7 @@
 package seedu.address.logic.parser;
 
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toSet;
 import static seedu.address.logic.parser.ParserUtil.argsAreNameValuePair;
 import static seedu.address.logic.parser.ParserUtil.argsWithBounds;
 import static seedu.address.logic.parser.ParserUtil.targetCodeNotNull;
@@ -9,8 +11,11 @@ import static seedu.address.logic.parser.ParserUtil.validateName;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
-
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.IntStream;
+
+import com.google.common.collect.ImmutableSet;
 
 import seedu.address.logic.commands.DeleteModuleCommand;
 import seedu.address.logic.parser.arguments.DeleteArgument;
@@ -49,8 +54,16 @@ public class DeleteModuleCommandParser implements Parser<DeleteModuleCommand> {
                     + "\n"
                     + DeleteModuleCommand.MESSAGE_USAGE;
 
-    // Immutable map that maps string argument to edit argument enum.
+    /**
+     * Immutable map that maps string argument to edit argument enum.
+     */
     private static final Map<String, DeleteArgument> NAME_TO_ARGUMENT_MAP;
+
+    /**
+     * Immutable set containing the allowable size of arguments.
+     */
+    private static final Set<Integer> ALLOWED_ARG_SIZE;
+
     static {
         Map<String, DeleteArgument> map = new HashMap<>();
         for (DeleteArgument instance : DeleteArgument.values()) {
@@ -60,8 +73,16 @@ public class DeleteModuleCommandParser implements Parser<DeleteModuleCommand> {
         NAME_TO_ARGUMENT_MAP = Collections.unmodifiableMap(map);
     }
 
-    // Map object to argument.
-    private EnumMap<DeleteArgument, Object> argMap;
+    /**
+     * Populate {@code ALLOWED_ARG_SIZE} with a set of numbers representing the
+     * allowed argument sizes.
+     */
+    static {
+        ALLOWED_ARG_SIZE = IntStream.range(2, 7)
+                .filter(index -> index % 2 == 0)
+                .boxed()
+                .collect(collectingAndThen(toSet(), ImmutableSet::copyOf));
+    }
 
     /**
      * Parses {@code args} in the context of {@code DeleteModuleCommand} and
@@ -86,12 +107,6 @@ public class DeleteModuleCommandParser implements Parser<DeleteModuleCommand> {
      */
     public DeleteModuleCommand parse(String argsInString)
             throws ParseException {
-        // Setup argument map.
-        argMap = new EnumMap<>(DeleteArgument.class);
-        argMap.put(DeleteArgument.TARGET_CODE, null);
-        argMap.put(DeleteArgument.TARGET_YEAR, null);
-        argMap.put(DeleteArgument.TARGET_SEMESTER, null);
-
         // Converts argument string to tokenize argument array.
         String[] args = ParserUtil.tokenize(argsInString);
 
@@ -100,18 +115,19 @@ public class DeleteModuleCommandParser implements Parser<DeleteModuleCommand> {
         // Arguments should be in name-value pair.
         // Name should be legal.
         // No duplicate name.
-        argsWithBounds(args, 2, 6);
+        argsWithBounds(args, ALLOWED_ARG_SIZE);
         argsAreNameValuePair(args, MESSAGE_INVALID_FORMAT);
         validateName(args, NAME_TO_ARGUMENT_MAP, MESSAGE_INVALID_FORMAT);
 
-        // Parse values.
-        parseValues(args);
-
+        // Map the object of the parsed value to {@code DeleteArgument}
+        // instance.
         // Target code should not be null.
         // Target year is null if and only if target semester is null.
+        EnumMap<DeleteArgument, Object> argMap = parseValues(args);
         targetCodeNotNull(argMap.get(DeleteArgument.TARGET_CODE),
                 MESSAGE_TARGET_CODE_REQUIRED);
-        targetYearNullIffTargetSemesterNull(argMap.get(DeleteArgument.TARGET_YEAR),
+        targetYearNullIffTargetSemesterNull(
+                argMap.get(DeleteArgument.TARGET_YEAR),
                 argMap.get(DeleteArgument.TARGET_SEMESTER),
                 MESSAGE_YEAR_AND_SEMESTER_XOR_NULL);
 
@@ -125,11 +141,18 @@ public class DeleteModuleCommandParser implements Parser<DeleteModuleCommand> {
      * @param args array of name-value pair arguments
      * @throws ParseException thrown when the value cannot be parsed
      */
-    private void parseValues(String[] args) throws ParseException {
+    private EnumMap<DeleteArgument, Object> parseValues(String[] args)
+            throws ParseException {
+        // Initialise argument map.
+        EnumMap<DeleteArgument, Object> argMap =
+                new EnumMap<>(DeleteArgument.class);
+
         for (int index = 0; index < args.length; index = index + 2) {
             DeleteArgument name = NAME_TO_ARGUMENT_MAP.get(args[index]);
             Object value = name.getValue(args[index + 1]);
             argMap.put(name, value);
         }
+
+        return argMap;
     }
 }

@@ -158,7 +158,11 @@ public class ModuleBuilder {
      * Sets the {@code completed} of the {@code Module} that we are building.
      */
     public ModuleBuilder withCompleted(boolean completed) {
-        this.completed = completed;
+        if (completed) {
+            withGrade((grade == null) ? new Grade(DEFAULT_GRADE) : new Grade(grade.value));
+        } else {
+            noGrade();
+        }
         return this;
     }
 

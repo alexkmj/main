@@ -10,6 +10,7 @@ import seedu.address.logic.parser.exceptions.ParseException;
  * Parses User Input
  */
 public class GoalCommandParser implements Parser<GoalCommand> {
+    public static final String MESSAGE_OUT_OF_RANGE = "CAP Goal out of range! Should be between 0 and 5 inclusive.";
     @Override
     public GoalCommand parse(String userInput) throws ParseException {
         final String trimmedArgs = userInput.trim();
@@ -21,7 +22,7 @@ public class GoalCommandParser implements Parser<GoalCommand> {
         try {
             double newGoal = Double.parseDouble(trimmedArgs);
             if (newGoal < 0 || newGoal > 5) {
-                throw new ParseException(format);
+                throw new ParseException(MESSAGE_OUT_OF_RANGE);
             }
             return new GoalCommand(newGoal);
         } catch (NumberFormatException nfe) {

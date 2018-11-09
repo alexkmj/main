@@ -188,5 +188,14 @@ public class TypicalModules {
     public static Module duplicateWithGradesAdjusted(Module module) {
         return module.adjustGrade(module.getGrade());
     }
+
+    /**
+     * Duplicates Module with Grade targeted
+     * @param module
+     * @return Module with Grade targeted
+     */
+    public static Module duplicateWithGradesTarget(Module module) {
+        return module.updateTargetGrade(module.getGrade().getPoint());
+    }
     //@@ author
 }
