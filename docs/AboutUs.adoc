@@ -4,52 +4,77 @@
 :imagesDir: images
 :stylesDir: stylesheets
 
-CAPTracker is for those students who prefer to use a desktop app for calculating and managing their CAP. More importantly CAPTracker is optimized for those who prefer to work with a Command Line Interface (CLI) while still having the benefits of a Graphical User Interface (GUI). If you can type fast, CAPTracker is the ideal application to calculate your current CAP, and predict what grades you need in modules you haven’t taken to achieve your ideal CAP. +
+AddressBook - Level 4 was developed by the https://se-edu.github.io/docs/Team.html[se-edu] team. +
+_{The dummy content given below serves as a placeholder to be used by future forks of the project.}_ +
+{empty} +
 We are a team based in the http://www.comp.nus.edu.sg[School of Computing, National University of Singapore].
 
 == Project Team
 
+<<<<<<< HEAD
 === Alex Koh
 image::alexkmj.png[width="150", align="left"]
 {empty} [https://github.com/alexkmj[github]] [<<alexkmj#, portfolio>>]
+=======
+=== John Doe
+image::damithc.jpg[width="150", align="left"]
+{empty}[http://www.comp.nus.edu.sg/~damithch[homepage]] [https://github.com/damithc[github]] [<<johndoe#, portfolio>>]
+>>>>>>> parent of ee3069ee... Updated AboutUs.adoc and added empty image placeholders for profile photos
 
-Role: Developer +
-Responsibilities: [Refer to W6.10]
+Role: Project Advisor
 
 '''
 
+<<<<<<< HEAD
 === Amber Joseph
 image::josephambe.png[width="150", align="left"]
 {empty}[http://github.com/josephambe[github]] [<<josephambe#, portfolio>>]
+=======
+=== John Roe
+image::lejolly.jpg[width="150", align="left"]
+{empty}[http://github.com/lejolly[github]] [<<johndoe#, portfolio>>]
+>>>>>>> parent of ee3069ee... Updated AboutUs.adoc and added empty image placeholders for profile photos
 
-Role: Developer +
-Responsibilities: [Refer to W6.10]
-
-'''
-
-=== Jeremy Yew
-image::jeremyyew.png[width="150", align="left"]
-{empty}[http://github.com/jeremyyew[github]] [<<jeremyyew#, portfolio>>]
-
-Role: Developer +
-Responsibilities: [Refer to W6.10]
+Role: Team Lead +
+Responsibilities: UI
 
 '''
 
+=== Johnny Doe
+image::yijinl.jpg[width="150", align="left"]
+{empty}[http://github.com/yijinl[github]] [<<johndoe#, portfolio>>]
+
+Role: Developer +
+Responsibilities: Data
+
+'''
+
+<<<<<<< HEAD
 === Jeremiah Ang
 image::jeremiah-ang.png[width="150", align="left"]
 {empty}[http://github.com/jeremiah-ang[github]] [<<jeremiah-ang#, portfolio>>]
+=======
+=== Johnny Roe
+image::m133225.jpg[width="150", align="left"]
+{empty}[http://github.com/m133225[github]] [<<johndoe#, portfolio>>]
+>>>>>>> parent of ee3069ee... Updated AboutUs.adoc and added empty image placeholders for profile photos
 
 Role: Developer +
-Responsibilities: [Refer to W6.10]
+Responsibilities: Dev Ops + Threading
 
 '''
 
+<<<<<<< HEAD
 === Kong Jun Yin
 image::bugeyedbug.png[width="150", align="left"]
 {empty}[http://github.com/BugEyedBug[github]] [<<bugeyedbug#, portfolio>>]
+=======
+=== Benson Meier
+image::yl_coder.jpg[width="150", align="left"]
+{empty}[http://github.com/yl-coder[github]] [<<johndoe#, portfolio>>]
+>>>>>>> parent of ee3069ee... Updated AboutUs.adoc and added empty image placeholders for profile photos
 
 Role: Developer +
-Responsibilities: [Refer to W6.10]
+Responsibilities: UI
 
 '''
